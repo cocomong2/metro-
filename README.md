@@ -7,12 +7,12 @@
 
 핵심 기술 스택 (Tech Stack):
 
-OS : Linux(Ubuntu)
-Language: Python 3.10
-Infrastructure: Docker, Docker Compose(멀티 컨테이너 통합 오케스트레이션)
-ComposeOrchestration: Apache Airflow( ETL 파이프라인 자동화 스케줄러) 
-Database: PostgreSQL (Data Warehouse)
-Backend / API: FastAPI
+* OS : Linux(Ubuntu)
+* Language: Python 3.10
+* Infrastructure: Docker, Docker Compose(멀티 컨테이너 통합 오케스트레이션)
+* ComposeOrchestration: Apache Airflow( ETL 파이프라인 자동화 스케줄러) 
+* Database: PostgreSQL (Data Warehouse)
+* Backend / API: FastAPI
 
 2. 시스템 아키텍처 (Architecture)시스템은 각 역할별로 컨테이너를 분리하여 느슨한 결합(Loosely Coupled) 구조로 설계되었습니다.
 | 구성 요소 | 역할 및 설명 | 기술 스택 |
@@ -69,11 +69,11 @@ Backend / API: FastAPI
 
 Apache Airflow DAG를 통해 매주/매일(또는 지정된 스케줄에 따라) 자동으로 실행되는 ETL 프로세스입니다.
 
-Extract (추출):서울 열린데이터광장 오픈 API를 통해 특정 주기의 지하철 혼잡도 JSON 데이터를 HTTP GET 요청으로 가져옵니다.
+* Extract (추출):서울 열린데이터광장 오픈 API를 통해 특정 주기의 지하철 혼잡도 JSON 데이터를 HTTP GET 요청으로 가져옵니다.
 
-Transform (변환):응답 데이터 내에서 불필요한 필드를 제거하고, 누락된 데이터(Null 값)나 비정상적인 수치를 필터링합니다.DB에 곧바로 INSERT 할 수 있도록 파이썬 딕셔너리 리스트 형태로 구조를 맞춥니다.
+* Transform (변환):응답 데이터 내에서 불필요한 필드를 제거하고, 누락된 데이터(Null 값)나 비정상적인 수치를 필터링합니다.DB에 곧바로 INSERT 할 수 있도록 파이썬 딕셔너리 리스트 형태로 구조를 맞춥니다.
 
-Load (적재):PostgreSQL 데이터베이스와 안전하게 세션을 맺은 뒤, 가공된 데이터를 stations와 congestion_logs 테이블에 일괄 적재합니다.
+* Load (적재):PostgreSQL 데이터베이스와 안전하게 세션을 맺은 뒤, 가공된 데이터를 stations와 congestion_logs 테이블에 일괄 적재합니다.
 
 
 🚀 6. REST API 서빙 엔드포인트 (API Endpoints)FastAPI를 통해 PostgreSQL에 적재된 데이터를 가공하여 클라이언트에게 제공합니다.
