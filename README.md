@@ -1,5 +1,5 @@
 🚇 Seoul Metro Congestion Data Pipeline & Serving System
-서울시 지하철 혼잡도 데이터를 활용한 자동화드 수집(ETL) 파이프라인 및 REST API 서빙 서비스데이터 엔지니어링의 핵심인 오케스트레이션(Airflow), 데이터 웨어하우스(PostgreSQL), 컨테이너 기반 인프라(Docker)를 활용해 데이터 수집부터 적재, 서빙까지의 End-to-End 파이프라인을 구축하는 프로젝트입니다.
+서울시 지하철 혼잡도 데이터를 활용한 자동화 수집(ETL) 파이프라인 및 REST API 서빙 서비스데이터 엔지니어링의 핵심인 오케스트레이션(Airflow), 데이터 웨어하우스(PostgreSQL), 컨테이너 기반 인프라(Docker)를 활용해 데이터 수집부터 적재, 서빙까지의 End-to-End 파이프라인을 구축하는 프로젝트입니다.
 
 📌 1. 프로젝트 개요 (Overview)개발 기간: 2026.07 ~ (진행 중)
 
