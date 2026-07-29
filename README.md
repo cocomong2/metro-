@@ -8,67 +8,54 @@
 핵심 기술 스택 (Tech Stack):Language: Python 3.10+Infrastructure: Docker, Docker ComposeOrchestration: Apache AirflowDatabase: PostgreSQL (Data Warehouse)Backend / API: FastAPI🏗️ 
 
 2. 시스템 아키텍처 (Architecture)시스템은 각 역할별로 컨테이너를 분리하여 느슨한 결합(Loosely Coupled) 구조로 설계되었습니다.
-3. Plaintext+-----------------------------------------------------------------+
-|                       Docker Network                            |
-|                                                                 |
-|  +--------------------+       +------------------------------+  |
-|  |   Apache Airflow   | ----> |      PostgreSQL DB           |  |
-|  | (ETL Scheduler)    |       | (Data Warehouse / Storage)   |  |
-|  +--------------------+       +------------------------------+  |
-|           |                                  ^                  |
-|   (Extract/Transform)                        | (Query Data)     |
-|           v                                  |                  |
-|  [ Seoul Open API ]                          |                  |
-|                                     +--------------------+      |
-|                                     |      FastAPI       |      |
-|                                     | (REST API Serving) |      |
-|                                     +--------------------+      |
-|                                               ^                 |
-|                                               | (HTTP Requests) |
-|                                     [ Client / User ]           |
-+-----------------------------------------------------------------+
+| 구성 요소 | 역할 및 설명 | 기술 스택 |
+| :--- | :--- | :--- |
+| **Orchestration** | 주기적인 데이터 수집 및 ETL 파이프라인 자동화 | Apache Airflow |
+| **Data Warehouse** | 수집된 정형/시계열 데이터 저장 및 정규화 관리 | PostgreSQL |
+| **Data Serving** | 적재된 데이터를 REST API 형태로 클라이언트에 제공 | FastAPI |
+| **Infrastructure** | 모든 서비스를 컨테이너로 격리하여 실행 및 관리 | Docker, Docker Compose |
 
 📁 3. 디렉토리 구조 (Directory Structure)프로젝트의 유지보수성과 확장성을 고려하여 서비스별로 디렉토리를 명확히 분리했습니다.
 
-Plaintext
-subway-congestion-pipeline/
-├── docker-compose.yml              # 전체 서비스 통합 오케스트레이션 설정
-├── README.md                       # 프로젝트 문서
-├── airflow/
-│   ├── Dockerfile                  # Airflow 커스텀 이미지 빌드 파일
-│   ├── dags/
-│   │   └── subway_congestion_dag.py# 지하철 혼잡도 수집 및 적재 DAG 파이프라인
-│   └── requirements.txt            # Airflow 파이썬 패키지 의존성
-├── fastapi/
-│   ├── Dockerfile                  # FastAPI 앱 이미지 빌드 파일
-│   ├── main.py                     # API 엔드포인트 구현 (데이터 서빙)
-│   └── requirements.txt            # FastAPI 패키지 의존성
-└── postgres/
-    └── init/
-        └── create_tables.sql       # DB 초기 스키마 자동 생성 스크립트
+| 경로 및 파일명 | 설명 |
+| :--- | :--- |
+| `subway-congestion-pipeline/` | 프로젝트 루트 디렉토리 |
+| ├── `docker-compose.yml` | 전체 서비스 통합 오케스트레이션 설정 파일 |
+| ├── `README.md` | 프로젝트 문서 |
+| ├── `airflow/` | Apache Airflow 관련 설정 및 DAG 디렉토리 |
+| │   ├── `Dockerfile` | Airflow 커스텀 이미지 빌드 파일 |
+| │   ├── `dags/subway_congestion_dag.py` | 지하철 혼잡도 수집 및 적재 DAG 파이프라인 |
+| │   └── `requirements.txt` | Airflow 파이썬 패키지 의존성 |
+| ├── `fastapi/` | FastAPI 백엔드 서빙 디렉토리 |
+| │   ├── `Dockerfile` | FastAPI 앱 이미지 빌드 파일 |
+| │   ├── `main.py` | API 엔드포인트 구현 (데이터 서빙) |
+| │   └── `requirements.txt` | FastAPI 패키지 의존성 |
+| └── `postgres/` | PostgreSQL DB 초기화 디렉토리 |
+|     └── `init/create_tables.sql` | DB 초기 스키마 자동 생성 SQL 스크립트 |
 
 🗄️ 4. 데이터베이스 스키마 설계 (Database Schema)
 데이터의 중복을 최소화하고 조회 성능을 높이기 위해 마스터 테이블(Dimension)과 로그/팩트 테이블(Fact) 구조로 정규화하여 설계했습니다.
 
-① 마스터 테이블 (stations)역 고유 정보와 호선 정보를 관리하는 기준 테이블입니다.SQLCREATE TABLE IF NOT EXISTS stations (
-    station_id VARCHAR(20) PRIMARY KEY,     -- 역 고유 코드
-    station_name VARCHAR(50) NOT NULL,      -- 역 이름 (예: 강남역)
-    line_number VARCHAR(20) NOT NULL        -- 호선 정보 (예: 2호선)
+① 마스터 테이블 (stations)역 고유 정보와 호선 정보를 관리하는 기준 테이블입니다.
+| 컬럼 명 | 데이터 타입 | 제약 조건 (Constraints) | 설명 |
+| :--- | :--- | :--- | :--- |
+| `station_id` | `VARCHAR(20)` | `PRIMARY KEY` | 역 고유 코드 |
+| `station_name` | `VARCHAR(50)` | `NOT NULL` | 역 이름 (예: 강남역) |
+| `line_number` | `VARCHAR(20)` | `NOT NULL` | 호선 정보 (예: 2호선) |
 );
 
 ② 팩트/로그 테이블 (congestion_logs)
 시간대별, 요일별로 수집되는 대규모 혼잡도 시계열 데이터를 적재하는 테이블입니다.
 
-SQL
-CREATE TABLE IF NOT EXISTS congestion_logs (
-log_id SERIAL PRIMARY KEY,
-    station_id VARCHAR(20) REFERENCES stations(station_id),
-    day_type VARCHAR(20) NOT NULL,          -- 구분 (평일 / 토요일 / 일요일)
-    up_down_type VARCHAR(20) NOT NULL,      -- 상행 / 하행 구분
-    time_slot VARCHAR(20) NOT NULL,         -- 30분 단위 시간대 (예: '08:30')
-    congestion_rate NUMERIC(5, 2) NOT NULL, -- 혼잡도 퍼센트(%)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- 데이터 적재 타임스탬프
-);
+| 컬럼 명 | 데이터 타입 | 제약 조건 (Constraints) | 설명 |
+| :--- | :--- | :--- | :--- |
+| `log_id` | `SERIAL` | `PRIMARY KEY` | 로그 고유 ID (Auto Increment) |
+| `station_id` | `VARCHAR(20)` | `REFERENCES stations(station_id)` | 역 고유 코드 (FK) |
+| `day_type` | `VARCHAR(20)` | `NOT NULL` | 구분 (평일 / 토요일 / 일요일) |
+| `up_down_type` | `VARCHAR(20)` | `NOT NULL` | 상행 / 하행 구분 |
+| `time_slot` | `VARCHAR(20)` | `NOT NULL` | 30분 단위 시간대 (예: '08:30') |
+| `congestion_rate` | `NUMERIC(5, 2)` | `NOT NULL` | 혼잡도 퍼센트(%) |
+| `created_at` | `TIMESTAMP` | `DEFAULT CURRENT_TIMESTAMP` | 데이터 적재 타임스탬프 |
 
 
 ⚙️ 5. 파이프라인 및 데이터 플로우 (Pipeline Workflow)
