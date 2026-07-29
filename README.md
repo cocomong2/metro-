@@ -14,7 +14,7 @@
 * Database: PostgreSQL (Data Warehouse)
 * Backend / API: FastAPI
 
-2. 시스템 아키텍처 (Architecture)시스템은 각 역할별로 컨테이너를 분리하여 느슨한 결합(Loosely Coupled) 구조로 설계되었습니다.
+📡 2. 시스템 아키텍처 (Architecture)시스템은 각 역할별로 컨테이너를 분리하여 느슨한 결합(Loosely Coupled) 구조로 설계되었습니다.
 | 구성 요소 | 역할 및 설명 | 기술 스택 |
 | :--- | :--- | :--- |
 | **Orchestration** | 주기적인 데이터 수집 및 ETL 파이프라인 자동화 | Apache Airflow |
