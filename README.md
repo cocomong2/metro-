@@ -5,7 +5,14 @@
 
 개발 목표: 공공 데이터를 주기적으로 안전하게 수집하고, 관계형 데이터베이스에 효율적으로 정규화하여 적재하는 ETL 자동화 파이프라인 구축적재된 데이터를 활용하여 클라이언트의 요청에 빠르게 응답하는 REST API 서버 개발모든 서비스를 Docker 컨테이너로 격리하여 확장성과 재현성이 높은 개발/운영 환경 조성
 
-핵심 기술 스택 (Tech Stack):Language: Python 3.10+Infrastructure: Docker, Docker ComposeOrchestration: Apache AirflowDatabase: PostgreSQL (Data Warehouse)Backend / API: FastAPI🏗️ 
+핵심 기술 스택 (Tech Stack):
+
+OS : Linux(Ubuntu)
+Language: Python 3.10
+Infrastructure: Docker, Docker Compose(멀티 컨테이너 통합 오케스트레이션)
+ComposeOrchestration: Apache Airflow( ETL 파이프라인 자동화 스케줄러) 
+Database: PostgreSQL (Data Warehouse)
+Backend / API: FastAPI
 
 2. 시스템 아키텍처 (Architecture)시스템은 각 역할별로 컨테이너를 분리하여 느슨한 결합(Loosely Coupled) 구조로 설계되었습니다.
 | 구성 요소 | 역할 및 설명 | 기술 스택 |
